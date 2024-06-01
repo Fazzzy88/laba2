@@ -1,17 +1,17 @@
 #!/bin/bash
 local_ip=$(ip a | grep 192.168)
 hostname=$(hostname)
-dns_server=$(cat /etc/resolv.conf | grep nameserver | awk '{print $2}')
+dns_server=$( grep nameserver /etc/resolv.conf | awk '{print $2}')
 gateway=$(ip r | grep 'def' | awk '{print $3}')
-ssh_port=$(cat /etc/ssh/sshd_config | grep "Port" | awk '{print $2}' | head -n1)
-root_login=$(cat /etc/ssh/sshd_config | grep 'PermitRootLogin' | head -n1 | awk '{print $2}')
-allow_users=$(cat /etc/ssh/sshd_config | grep 'AllowUsers' | awk '{print $2}')
-established_connections=$(netstat -tnpa | grep 'ESTABLISHED.*sshd' | wc -l)
-if [ -z $(ping ya.ru -c 1 | grep -e transmitted -e received) ]; then internet_conn=False; else internet_conn=True; fi 
+ssh_port=$(grep "Port" /etc/ssh/sshd_config | awk '{print $2}' | head -n1)
+root_login=$(grep "PermitRootLogin" /etc/ssh/shhd_config | head -n1 | awk '{print $2}')
+allow_users=$(grep "AllowUsers" /etc/ssh/sshd_config | awk '{print $2}')
+established_connections=$(netstat -tnpa | grep -c 'ESTABLISHED.*sshd')
+if [ "$(ping ya.ru -c 1 | grep -e transmitted -e received)" -lt 1 ]; then internet_conn=False; else internet_conn=True; fi 
 chrony_sources=$(chronyc sources | grep 'ans.local' | awk '{print $2}')
 httpd_state=$(systemctl status httpd | grep Active | awk '{print $2}')
-index=$(cat /var/www/html/site/index.html | grep ans)
-www=$(cat /etc/httpd/conf.d/www.conf | grep 'ans.local' | awk '{print $2}')
+index=$(grep "ans" /var/www/html/site/index.html)
+www=$(grep "ans.local" /etc/httpd/conf.d/www.conf | awk '{print $2}')
 rabota=$(curl www.ans.local | grep 'ans.local')
 
 {
@@ -32,8 +32,8 @@ rabota=$(curl www.ans.local | grep 'ans.local')
 	fi
 	
 	if [[ "$gateway" == *192.168.100.254* ]];
-		then gw=True;
-		else gw=False;
+		then gtw=True;
+		else gtw=False;
 	fi
 
 	if [[ "$ssh_port" == 22 ]];
@@ -82,11 +82,11 @@ rabota=$(curl www.ans.local | grep 'ans.local')
 echo '{"ip": "'$ip'"}' | jq .
 echo '{"hostname": "'$hn'"}' | jq .
 echo '{"dns_server": "'$dns'"}' | jq .
-echo '{"gateway"}: "'$gw'"}' | jq .
+echo '{"gateway"}: "'$gtw'"}' | jq .
 echo '{"ssh_port": "'$ssh'"}' | jq .
 echo '{"root_login": "'$rl'"}' | jq .
 echo '{"allow_users": "'$au'"}' | jq .
-echo '{"established_connections": "'$established_connections'"}' | jq .
+echo '{"established_connections": "'"$established_connections"'"}' | jq .
 echo '{"ya_ping": "'$internet_conn'"}' | jq .
 echo '{"chrony_sources": "'$cs'"}'| jq .
 echo '{"httpd_state": "'$htpd'"}'| jq .
