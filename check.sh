@@ -82,7 +82,7 @@ rabota=$(curl www.ans.local | grep 'ans.local')
 echo '{"ip": "'$ip'"}' | jq .
 echo '{"hostname": "'$hn'"}' | jq .
 echo '{"dns_server": "'$dns'"}' | jq .
-echo '{"gateway"}: "'$gtw'"}' | jq .
+echo '{"gateway": "'$gtw'"}' | jq .
 echo '{"ssh_port": "'$ssh'"}' | jq .
 echo '{"root_login": "'$rl'"}' | jq .
 echo '{"allow_users": "'$au'"}' | jq .
