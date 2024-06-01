@@ -2,9 +2,9 @@
 local_ip=$(ip a | grep 192.168)
 hostname=$(hostname)
 dns_server=$( grep nameserver /etc/resolv.conf | awk '{print $2}')
-gateway=$(ip r | grep 'def' | awk '{print $3}')
+gateway=$(netstat -rn | awk '{print $2}' | tail -n+3 | head -n1)
 ssh_port=$(grep "Port" /etc/ssh/sshd_config | awk '{print $2}' | head -n1)
-root_login=$(grep "PermitRootLogin" /etc/ssh/shhd_config | head -n1 | awk '{print $2}')
+root_login=$(grep "PermitRootLogin no" /etc/ssh/sshd_config | awk '{print $2}')
 allow_users=$(grep "AllowUsers" /etc/ssh/sshd_config | awk '{print $2}')
 established_connections=$(netstat -tnpa | grep -c 'ESTABLISHED.*sshd')
 if [ "$(ping ya.ru -c 1 | grep -e transmitted -e received)" -lt 1 ]; then internet_conn=False; else internet_conn=True; fi 
